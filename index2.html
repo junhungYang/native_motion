@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        div {
+            position: absolute;
+            left:0px;
+            top:0px;
+            height: 100px;
+            width: 100px;
+            background-color: orange;
+            border-radius: 50%;
+        }
+
+        span {
+            display: block;
+            width: 1px;
+            height: 100px;
+            background: black;
+            position: absolute;
+            left: 1000px;
+            top:500px;
+        }
+        /* p{
+            position: absolute;
+            left:0;
+            height:0;
+            width:5px;
+            height:5px;
+            background: black;
+        } */
+        p{
+            position: absolute;
+            left:0;
+            top:600px;
+            height:1px;
+            width:1400px;
+            background:black;
+        }
+    </style>
+
+    <body>
+        <div></div>
+        <span></span>
+        <p></p>
+        <script>
+            var div = document.getElementsByTagName('div')[0];
+//----------------------------------------------------------------------------------------------------
+            // var firstLeft = div.offsetLeft;
+            // var firstTop = div.offsetTop;
+            // console.log(firstLeft,firstTop)
+            // div.onmousedown = function(e){
+            //     clearInterval(div.timer)
+            //     var event = e || window.event;
+            //     var disX = e.clientX - this.offsetLeft;
+            //     var disY = e.clientY - this.offsetTop;
+            //     var that = this;
+            //     var iSpeedX,iSpeedY
+            //     document.onmousemove = function(e){
+            //         var newLeft = e.clientX - disX;
+            //         var newTop = e.clientY - disY;
+            //         // var oP = document.createElement('p')
+            //         // oP.style.left = newLeft + 'px';
+            //         // oP.style.top = newTop + 'px';
+            //         // document.body.appendChild(oP);
+            //         iSpeedX = (newLeft - firstLeft);
+            //         iSpeedY = (newTop - firstTop);
+            //         that.style.left = newLeft + 'px';
+            //         that.style.top = newTop + 'px';
+            //         firstLeft = newLeft;
+            //         firstTop = newTop;
+            //     } 
+            //     document.onmouseup = function(){
+            //         document.onmousemove = null;
+            //         document.onmouseup = null;
+            //         startMove4(that,iSpeedX,iSpeedY)
+            //     }
+            // }
+//-------------------------------------------------------------------------------------------------------------------------------------------------            
+            div.onclick = function () {
+                startMove2(this,300)
+            }
+
+            function startMove(obj) {
+                setInterval(obj.timer)
+                var iSpeed = 8
+                obj.timer = setInterval(function () {
+                    obj.style.left = obj.offsetLeft + iSpeed + 'px'
+                    if (obj.offsetLeft >= 300) {
+                        clearInterval(obj.timer)
+                        obj.style.left = 300 + 'px';
+                    }
+                }, 30)
+            }
+
+            // 匀速运动的基本概念为速度恒定，速度在数值上等于单位时间内所通过的路程，
+            // 在以上状况中，单位时间为50，通过的路程的路程恒定为5px,也就是说每50毫秒固定行走5px的距离，
+
+            //速度是一个矢量，它不仅代表运动的快慢，还代表运动的方向，而单纯表示运动的快慢的计量单位是速率
+            //在数学平面中，自左向右运动的话(往x轴正方向)速度为正，自右向左的话(往x轴负方向)速度就为负
+            //同样往y轴正方向移动速度为正，往y轴负方向移动速度为负，鉴于浏览器中的y轴与数学中的y轴正负方向相反,
+            //所以在浏览器中自下往上速度为负，自上往下速度为正。
+
+            //清楚定时器的判定条件之所以不可以为obj.offsetLeft == 300的原因在于，假如速度不是路程的正数倍的话，
+            //ob就永远不可能等于300,此时它会掠过300的位置继续往前走，所以我们需要在把条件设定为obj.offsetLeft >= 300,
+            //然后在清楚定时器，其次我们需要手动地让obj.style.left = 300 +'px'
+            //或者我们可以把判定条件设定为(300-obj,offsetLeft < iSpeed)，当方块当前的位置离目标点的距离不足8px时，
+            //假如保持原状继续行进的话那么它将超出300的位置，既然如此我们就把定时器清掉不让它继续行走，并手手动让它直接到达300的位置
+
+            function startMove1(obj) {
+                setInterval(obj.timer)
+                var iSpeed;
+                if (obj.offsetLeft > 300) {
+                    iSpeed = -8
+                } else {
+                    iSpeed = 8
+                }
+                obj.timer = setInterval(function () {
+                    obj.style.left = obj.offsetLeft + iSpeed + 'px'
+                    if (Math.abs(300 - obj.offsetLeft) < Math.abs(iSpeed)) {
+                        clearInterval(obj.timer)
+                        obj.style.left = 300 + 'px';
+                    }
+                }, 30)
+            }
+
+            // 在startMove的情况中，方块只可以做自左向右运动，不能做自右向左运动，因为速度为正，速度为正决定了它做正方方运动
+            // 而假如方块位于目标点的右方(obj.offsetLeft > 300),我们想让方块自右向左运动的话，速度就必须为负,
+            // 所以假如我们想让方块的位置大于目标点时做自右向左运动，在小于目标点时做自左向右运动的话，我们便需要判定方块当前位置是否小于目标点
+            // 小于的话速度设为正数，大于目标点的话速度设为负数
+            // 而速度本身需要方向之分，但路程本身是没有方向之分的，路程代表物体需要走多少的路程，而速度又代表单位时间内的索要走的路程，
+            // 事实上iSpeed本身不是速度，它是路程是单位时间内的路程而，iSpeed/30等于速度，但由于时间本身是没有方向之分的(不存在时光倒流)
+            // 所以我们只能把代表方向的正负号加于iSpeed身上，使速度(iSpeed/30)具有方向,而清理定时器的判定条件是所剩路程是否小于单位时间内要走的路程(iSpeed)
+            // 是关于单位时间内要走路程的判断，所以我们必须同时对300-obj.offsetLeft与iSpeed进行取绝对值的处理。这样才符合我们判定条件的本来含义
+
+
+            function startMove2(obj,target) {
+                clearInterval(obj.timer)
+                var iSpeed=20;
+                obj.timer = setInterval(function () {
+                    iSpeed = (target - obj.offsetLeft)/5
+                    iSpeed = iSpeed > 0 ? Math.ceil(iSpeed) : Math.floor(iSpeed)
+                    console.log(iSpeed)
+                    console.log(iSpeed)
+                    console.log(obj.offsetLeft)
+                    obj.style.left = obj.offsetLeft + iSpeed + 'px'
+                    if (obj.offsetLeft == 300) {
+                        clearInterval(obj.timer)
+                    }
+                }, 30)
+            }
+
+            //缓冲运动,缓冲这个定义就其现象而言是速度不断减少且加速度不断减少最终停止，速度等于s/t 因为t为单位时间所以t必须恒定，
+            //那么实现缓冲运动的关键就变为单位时间内的位移了，单位时间内位移逐渐变小等于速度逐渐变慢，加速度逐渐减小，在以上startMove2中
+            //iSpeed代表单位时间内的位移，所以我们必须使iSpeed的下一次循环时的数值小于前一次循环时的数值，那么我们便需要引入一个变量
+            //假如没有变量的话那么iSpeed将不会产生变化，那么在startMove2内除iSpeed为变量外，只剩obj.offfsetLeft为变量，
+            //其次obj.offsetLeft为不断变大的变量(向右位移)，那么我们就必须要用一个数减去这个不断变大的数使每一次求得的结果比上一次的结果小
+            //其次该数必须为目标点的坐标，原因在于每一次(目标点-obj.offsetLeft)/x 所得的结果再相加的结果无限接近于目标点，所以减obj的数必须为目标点
+            //而事实上obj.offsetLeft到最后是否能无限接近于目标的标准在于在于每个时刻所产生的位移iSpeed相加的结果是否无限接近目标点的数值
+            //而我们之所以说无限接近的原因在于offset类属性只接受整数，且假如obj.style.left有小数位的话通通向下取整，此时便出现了一个问题
+            //首先我们清楚iSpeed在不断的递减中终究会成为一个小数，那么假如iSpeed为小数的话，我们假设当前的iSpeed为0.4，obj.offsetLeft为296，
+            //那么obj.style.left就等于296.4，然后当定时器再执行并且函数进行至(300-obj.offsetLeft)/10时它取得的obj.offsetLeft就依然是0.4，
+            //而obj.style.left依然等于296.4，到下一次定式器在执行时，所取得的obj.offsetLeft的值也依然是296，那么obj.style.left结果依然是296.4
+            //也就等于此时方块不再动了，且永远无法达到300的位置，所以这就是为何方块只能无限接近于目标点的原因。
+            //所以我们必须得给iSpeed不断向上取整，假如方块是从右向左移动的话向下取整，这样方块便能在iSpeed为小数时，一点点地挪挪至目标点，
+            //需要知道的是在这个阶段方块做的是匀速运动
+            
+            //总结
+            //减速运动的话 iSpeed必须(目标值-obj.offset方向)x 并且必须通过iSpeed > 0 ? Math.ceil(iSpeed) : Math.floor(iSpeed)进行取整
+
+
+
+            //弹性运动       
+            function startMove5(obj){
+                clearInterval(obj.timer);
+                var iSpeed = 0,a,u = 0.8
+                obj.timer = setInterval(function(){
+                    a = (300-obj.offsetLeft)/10;
+                    iSpeed += a;
+                    iSpeed = iSpeed*u
+                    console.log(iSpeed)
+                    obj.style.left = obj.offsetLeft + iSpeed+'px'
+                    if(Math.abs(iSpeed) <= 1 && Math.abs(300-obj.offsetLeft) <= 1){
+                        clearInterval(obj.timer)
+                        obj.style.Left = 300 + 'px';
+                    }
+                },30)
+            }
+            //加速度的大小等于单位时间内速度的增量
+            //在橡皮筋弹性运动中，物体在钉的左方出发的话在定点的左侧时物体做的是加速度减少的加速运动，在顶点的右侧时做的是加速度增加的减速运动
+            //                  物体在钉的右侧出发的话在定点的右侧时物体做的事加速度减少的加速运动，在定点的左侧时做的是加速度增加的减速运动
+            //                  离钉越远加速度越大，离钉越近加速度越小
+            //这里的出发并非指物体最初开始运动时的初始状态而是当速度的方向发生变化时。(速度由正转换为负或速度由负转换为正)
+            //假如一个运动不需要双向的时那么我们的速度不需要加上加速度，假如是双向的话必须加上加速度，但在单向中不加加速度并不带变加速度不存在
+            //在这里我们让单位时间内的位移再乘以一个阻力系数，方块在的总体位移不断减少并最终停在钉的位置
+            //判定什么时候清楚定时器的标准有两个一个是速度为0，一个是目标点坐标减方块坐标等于0，但基于offsetLeft只向下取整的原因但
+            //事实上这两者都没办法完全等于0，这两者的数值会在-1与1之间，所以此时便需要对两者取绝对值，假如它们都小于1的话，那么定时器可以停止
+
+            //如何判定一个运动究竟需要多少个要素
+            //单位时间内的位移: iSpeed   加速度: a  阻力系数：u    运动物体的位置坐标系数: offset 目标点：target(target为目标点仅限于只有一个速度时)
+            //假如该运动不是一个匀速运动的话那么速度或加速度中必然存在一个(target - offset)/x
+            //假如该运动具有正反方向上的变化的话那么必然存在a，并且iSpeed= iSpeed+a,并且a必须能为正能为反(target - offset)/x
+            //假如该运动折返的路程要不断变短的话直至停下的话那么必然存在u，u必须为小数，且iSpeed= iSpeed*u
+            //假如一个运动是平抛运动的话，运动轨迹为抛物线,那么在到达目标点前做的是缓冲运动，在下落时做的是具有折返并且反弹后iSpeed要不断变小的弹性运动
+            //并且必须具备x轴上的速度与y轴上的速度
+            
+
+            function startMove4(obj,iSpeedX,iSpeedY){
+                clearInterval(obj.timer)
+                // var iSpeedX = 6;    
+                // var iSpeedY = 8;
+                var g = 6;
+                var u = 0.8;
+                obj.timer = setInterval(function(){
+                    iSpeedY += g;
+                    var newLeft = obj.offsetLeft + iSpeedX;
+                    var newTop = obj.offsetTop + iSpeedY
+                    if(newTop >= document.documentElement.clientHeight - obj.offsetHeight){
+                        iSpeedY *= -1;
+                        iSpeedY *=u;
+                        iSpeedX *=u;
+                        newTop = document.documentElement.clientHeight - obj.offsetHeight;
+                    }
+                    if(newTop <=0){
+                        iSpeedY *= -1;
+                        iSpeedY *=u;
+                        iSpeedX *=u;
+                        newTop = 0;         
+                    }
+                    if(newLeft >= document.documentElement.clientWidth - obj.offsetWidth){
+                        iSpeedX *= -1;
+                        iSpeedY *=u;
+                        iSpeedX *=u;
+                        newLeft = document.documentElement.clientWidth - obj.offsetWidth;                    
+                    }
+                    if(newLeft <= 0 ){
+                        iSpeedX *= -1;
+                        iSpeedY *=u;
+                        iSpeedX *=u;        
+                        newLeft = 0;                
+                    }
+                    obj.style.left = newLeft + 'px';
+                    obj.style.top = newTop + 'px';
+                    console.log(1)
+    
+                    if(Math.abs(iSpeedY) < 1 && Math.abs(iSpeedX) < 1 && newTop == document.documentElement.clientHeight - obj.offsetHeight){
+                        clearInterval(obj.timer)
+                    }
+                },30)
+            }
+            //模拟重力场
+            //在自由落体运动中g重力加速度是必须的，然后在每次碰壁时速度发生减少所需的阻力系数是必须的，
+            //其次我们需要产生回弹，也就是正反方向上的变化，因为重力加速度总是竖直向下，那么我们只有使iSpeed产生正负方向的变化
+            //其次在自由落体运动中，在忽略空气阻力的情况下，阻力只有产生在碰到底面或墙壁的瞬间，
+            //那么在这里我们便不让在每次单位时间内产生位移时都与iSpeed相乘,而是仅仅位于碰到地面或墙壁时
+            //其次决定物体运动是否有加速度的因素在与它在它的速度方向上是否受力，那么在自由落体运动中，物体横向上不受力，所以横向上我们不加加速度
+            //其次在自由落体运动中判定物体是否运动方向改变和是否收到摩擦力的依据为它是否碰壁，物体要碰壁也就是说它到达浏览器窗口的其中一边，
+            //它要到达右边或下边的话那么它此刻所在的位置就应该是就是doucment.documentElement.clientWidth或Height - obj.offsetWidth或Height,
+            //那么是否碰到右边或下边我们就只需要判断它的此刻的位置(newLeft/Top)是否大于或等于该位置便可以了
+            //而左边或上边的话我们就只需要判断，它此时的位置是否等于或大于0便可以了
+
+
+            //在做平抛运动时我们必须在onmousedown时清楚之前的定时器，否则在球运动过程中我们重新捉住球再抛时，这是等同于产生的是第二的运动,
+            //而假如此时我们不清理定时器的话它依然是第一次的定时器。
+
+
+            function startMove6(obj){
+                clearInterval(obj.timer);
+                var iSpeedX = 0;
+                var iSpeedY = 0;
+                var g = 6; u = 0.8
+                obj.timer = setInterval(function(){   
+                    obj.style.left = obj.offsetLeft + iSpeedX +'px';
+                    obj.style.top = obj.offsetTop + iSpeedY + 'px';                
+                    iSpeedX = (1050-obj.offsetLeft)/20;
+                    if(obj.offsetTop + iSpeedY >= 500){
+                        iSpeedY *=-1
+                        iSpeedY *=u  
+                        obj.style.top = 500 + 'px'                                    
+                    }
+                    obj.offsetLeft < 300 ? iSpeedY = (100-obj.offsetTop)/5 : iSpeedY += g ;
+                    console.log(iSpeedX,iSpeedY)
+                    // if(obj.offsetTop > 500){  定点停止
+                    //     clearInterval(obj.timer)
+                    //     obj.style.top = 500 + 'px'; 
+                    //     obj.style.left = 1000 + 'px';
+                    // }
+                    
+                    if(obj.offsetTop >= 500 && Math.abs(iSpeedY) < 1 ){
+                        clearInterval(obj.timer)
+                        console.log(1)
+                        obj.style.top = 500 + 'px'
+                    }
+                },30)
+            }
+
+            // 抛物线运动在横向上始终做减速运动,在纵向上先做减速,当下落时再做加速，加速度为g
+            // 抛物线效果具体会根据(y - obj.offsetLeft || obj.offsetTop)x中的y与x的数值产生线条上的变化
+        </script>
+    </body>
+
+</html>

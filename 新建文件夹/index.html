@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            margin:0;
+        }
+        div{
+            width:100px;
+            height:100px;
+            background-color: orange;
+            position: absolute;
+            left:0;
+        }
+        span{
+            position: absolute;
+            left:300px;
+            top:0px;
+            width:1px;
+            height:100px;
+            background: black
+        }
+        button{
+            margin-top:100px;
+        }
+    </style>
+</head>
+<body>
+    <div></div>
+    <span></span>
+    <button id='oBtn'>run</button>
+    <script>
+        //单方向匀速运动，兼达到一定路程后停止
+        var oDiv = document.getElementsByTagName('div')[0];
+        var timer;
+        oBtn.onclick = function () {
+            starMove(oDiv);
+        }
+        function starMove(obj) {
+            var iSpeed = 8;
+            clearInterval(timer)  //0
+            timer = setInterval(function () {
+                // if (300 - obj.offsetLeft < iSpeed) {  //1
+                //     clearInterval(timer);
+                //     obj.style.left = 300 + 'px'
+                // } else {
+                    obj.style.left = obj.offsetLeft + iSpeed + 'px'
+                // }
+            }, 30)
+        }
+        //0  在再一次点击时清理上一次的定时器，防止越点越块
+
+        //1  if(obj.offsetLeft === 300)
+        //   指定位置停止，假如offsetLeft等于300的话，那么清理当前的定时器，
+        //   每次回调函数进行执行时都会判断一下当前的offsetLeft小于300的话方块位置一次，下一次再次函数执行时，再次判定
+        //   当达到300时，清理当前定时器，同时在此情况下，无论你点多少次，当前的定时器都会在生成的下一刻就被清理掉，方块都不会运动       
+
+        //   当总路程是速度的倍数时，也就是说在位移的过程中方块总有一次会准确地落在指定的位置上，此时判定条件可以设为obj.offsetLeft == 300
+        //   但假如总路程不是速度的倍数的话继续以以上的判定条件去进行判定的话，方块将一直运动下去，因为obj.offsetLeft无论+多少次的ispeed它都不会等于300
+        //   可能是301也可能是302.....那么的话定时器将没法被清理， 而假如我们把判定条件设为obj.offsetLeft > 300的话，虽然方块确实会停止，但超过他原先应该停下的点一部分距离。
+        //   所以当方块走到到达终点不需要iSpeed步时，此时我们把定时器清理，让它不再走iSpeed步，而是让它以走到300为标准，去定义它自己下一步应该走多少步，
+        //   所以我们直接让它的left等于300,因为在iSpeed步的情况下，我们依然感觉方块是运动的，那么在小于iSpeed步的情况下我们是更加看不出来它是直接跳到300的地方的。
+
+
+        //   当方块在目标点的右侧, 在实际的运动中速度是有正负之分的，速度的正负代表是正方向运动还是反方向运动
+        //   假如div的left为600的话，它要到达目标点，需要往反方向运动，那么此时它的速度就应该是个负数
+        //   而当iSpeed为负时，if(300-obj.offsetLeft < iSpeed)这个判定条件便不再成立了
+        //   我们假设 此时div位于left600的位置，那么300-600的结果必然少于iSpeed，此时方块将在执行的一刻瞬间跳到left 300的位置
+        //   所以在判定条件内我们应该给判定符号的两边的值都设为一个绝对值Math.abs(-300) == 300 < Math.abs(-8) == 8 ? ==> false，方块执行else部分，
+        //   offsetLeft一直被减，等同于它一直缩小，所以方块向左运动，直至判定条件成立时 obj.style.left = '300px' 
+        function starMove1(obj) {
+            var iSpeed
+            if(obj.offsetLeft > 300){
+                iSpeed = -8
+            }else{
+                iSpeed = 8
+            }
+            clearInterval(timer)  //0
+            timer = setInterval(function () {
+                if (Math.abs(300 - obj.offsetLeft) < Math.abs(iSpeed)) {  //1
+                    clearInterval(timer);
+                    obj.style.left = 300 + 'px'
+                } else {
+                    obj.style.left = obj.offsetLeft + iSpeed + 'px'
+                }
+            }, 30)
+        }   
+
+
+
+
+        // 缓冲运动(先快后慢)
+        function starMove2(obj) {
+            var iSpeed
+            // clearInterval(timer)  //0
+            timer = setInterval(function () {
+                iSpeed = (300-obj.offsetLeft)/5.5;
+                iSpeed = (iSpeed < 0) ? Math.floor(iSpeed) : Math.ceil(iSpeed);
+                if (obj.offsetLeft === 300) {
+                    clearInterval(timer)
+                } else {
+                    obj.style.left = obj.offsetLeft + iSpeed + 'px';
+                    console.log(obj.offsetLeft)
+                    console.log(iSpeed)
+                }
+            }, 30)
+        }  
+
+        // 首先缓冲运动的话那么速度就不能是一个定值，它需要是一个逐渐缩小的值,而iSpeed是一个要求的值，
+        // 那么它就需要一个不变的值去减一个逐渐变大的值去实现速度的递减,在这里逐渐变大的值是obj.offsetLeft，
+        // 那么可以通过300-obj.offsetLeft求出一个逐渐变小的值，但问题在于在一开始left == 0,所以iSpeed等于0，
+        // 那么方块将会瞬间闪现至300的位置，不符合我们所说的运动，其次它也会停在那里，因为到下一次要运动时，iSpeed为0
+
+        // 所以我们必须让 300-obj.offsetLeft变小，所以我们对它的结果除以7，实现ispeed的逐渐减小
+        // 同时问题也出现了，当300-obj.offsetLeft的结果小于7时，/7后的结果等于一个0<iSpeed<1的小数，
+        // 而offsetLeft是不记录小数的，它们通通为0，所以我们彩取小于0的话，向下取整，也就是此时该iSpeed等于-1,然后大于0的话iSpeed等于1
+        // 那么方块便会一步一步的挪最终挪至300的地方，然后此时iSpeed等于0 ， 方块不再移动
+
+        // 在这里之所以不会像上一个函数一样当300不是iSpeed的倍数时无法停下的原因在于
+        // 首先iSpeed不是一个定数，其次通过向上取值或向下取值，方块始终会一点点挪至横坐标为300的位置
+    </script>
+</body>
+</html>

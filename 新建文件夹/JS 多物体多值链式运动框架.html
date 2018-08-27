@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            margin:0;
+        }
+        div{
+            width:100px;
+            height:100px;
+            position: absolute;
+            left:0px;
+            opacity: 1;
+        }
+        .top{
+            top:0;
+            background-color:#f40;
+        }
+        .center{
+            top:200px;
+            background-color:#f40;
+        }
+        .bottom{
+            top:400px;
+            background-color:#f40;
+        }       
+    </style>
+</head>
+<body>
+    <div class="top"></div>
+    <div class="center"></div>
+    <div class="bottom"></div>
+    <script>
+        var oDiv = document.getElementsByTagName('div');
+        var timer;
+        var objTarget = {
+            width: 400,
+            height: 400,
+            top: 200,
+            left: 300,
+            opacity: 50
+        }
+
+        function getStyle(obj, attr) {
+            if (obj.currentStyle) {
+                return obj.currentStyle[attr];
+            } else {
+                return window.getComputedStyle(obj, false)[attr];
+            }
+        }
+        var count = 0
+        function around(){
+                moveStar(oDiv[count],objTarget,around)
+                count ++
+        }
+        oDiv[count].onclick = function () {
+            moveStar(this, objTarget, around);
+            count ++
+        }
+
+        // oDiv[count].onclick = function () {
+        //     moveStar(this, objTarget, function () {
+        //         count ++
+        //         moveStar(oDiv[count], objTarget)
+        //     })
+        // }
+        function moveStar(obj, target, callback) {
+            if(obj == undefined){
+                return;
+            }
+            clearInterval(obj.timer);
+            var iCur;
+            var iSpeed;
+            var count = 0;
+            obj.timer = setInterval(function () {
+                var oStop = true;
+                count++;
+                    // console.log(count)
+                for (var attr in target) {
+                    iCur = (attr == 'opacity') ? parseFloat(getStyle(obj, attr)) * 100 : parseInt(getStyle(obj, attr));
+                    iSpeed = (target[attr] - iCur) / 7;
+                    iSpeed = iSpeed > 0 ? Math.ceil(iSpeed) : Math.floor(iSpeed);
+                    obj.style[attr] = (attr == "opacity") ? (iCur + iSpeed) / 100 : iCur + iSpeed + 'px'
+                    if (iCur != target[attr]) {
+                        oStop = false
+                    }
+                }
+                if (count == 15) {
+                    typeof callback == 'function' ? callback(oDiv[count],objTarget) : ''
+                    (oDiv[2],objTarget);
+                }
+                if (oStop) {
+                    clearInterval(obj.timer)
+                }
+            }, 30)
+        }
+
+        //  在多物体多值链式运动中，定时器不能像单值运动一样只是简单地通过判定当前值是否等于目标值决定是否清楚定时器
+        //  因为每项属性达到目标值所需的时间是不同的，假如采取单值判断的话，那么就会产生一个值到达了目标值，但其他值都还没到达目标值，就停止运动的状况
+        //  定时器要停止的基准是当所有值都到达目标值后，也就是说假如有一个值没到达目标值的话定式器依然要执行，所以我们把判定条件设定为
+        //  那么我们设定一个中间值oStop让它的初始值为true, 当它的值为true时定式器被清除，所以我们必须在两者中间设定一个坎去调节oStop的true和false
+        //  再回归至有一个值没达到目标值的话定时器依然要执行，所以该中间环境的判定条件为 iCur != target[attr] 的话 oStop = false，
+        //  也就是说假如第一个值到达目标值后 oStop依然为初始值true,而假如第二个值没达到的话 oStop为false,
+        //  即使第二个值往后的值全部达到目标值，oStop依然为false,那么定式器依然不会被清理，直到在往后的循环中 第二个值也达到了目标值后，
+        //  也就是说在最后一次达到目标值的定时器运行中，oStop的值一直为true,没有被改变，此时定时器被清理，既使所有属性也到达目标值，又实现了定时器的清楚。
+    </script>
+</body>
+</html>
